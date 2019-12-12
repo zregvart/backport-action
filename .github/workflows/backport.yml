@@ -26,9 +26,7 @@ jobs:
           if (branches && branches.length !== 0) {
             core.setOutput('branches', branches.join(','))
           }
-    - name: Perform the backport
-      id: perform
-      env:
-        BRANCHES: ${{steps.check.outputs.branches}}
-      run: |
-        echo $BRANCHES
+    - name: Checkout
+      id: checkout
+      if: steps.check.outputs.branches != 0
+      uses: actions/checkout@v2-beta
