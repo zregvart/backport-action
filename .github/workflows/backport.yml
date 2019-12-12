@@ -16,4 +16,5 @@ jobs:
     - name: Backport closed pull request
       id: backport
       if: github.event.pull_request.merged
-      uses: ./github/actions/backport
+    - uses: actions/checkout@v1
+    - uses: ./github/actions/backport
