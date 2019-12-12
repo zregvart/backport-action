@@ -9,12 +9,9 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    name: Backport closed pull request
+    if: github.event.pull_request.merged
     steps:
-    - name: Backport closed pull request
-      id: backport
-      if: github.event.pull_request.merged
     - uses: actions/checkout@v1
     - uses: ./github/actions/backport
