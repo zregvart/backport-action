@@ -12,7 +12,7 @@ backport() {
   local workdir=$(mktemp -d)
   git clone --no-tags -b ${branch} ${repository} "${workdir}"
   (cd "${workdir}";
-  git switch --create ${backport_branch};
+  git checkout -b ${backport_branch};
   git cherry-pick --mainline 1 ${merge_sha};
   git push --set-upstream origin ${backport_branch};
   rm -rf "${workdir}")
