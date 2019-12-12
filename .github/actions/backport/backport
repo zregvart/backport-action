@@ -10,6 +10,8 @@ backport() {
   local merge_sha=$(jq --raw-output .pull_request.merge_commit_sha "$GITHUB_EVENT_PATH")
 
   local workdir=$(mktemp -d)
+  git config --global user.email "admin@syndesis.io"
+  git config --global user.name "Backport Action"
   git clone --no-tags -b ${branch} ${repository} "${workdir}"
   (cd "${workdir}";
   git checkout -b ${backport_branch};
