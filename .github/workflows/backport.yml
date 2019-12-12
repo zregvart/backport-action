@@ -1,4 +1,4 @@
-name: CI
+name: Backport
 
 on:
   pull_request:
@@ -13,9 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Backport
-      if: github.event.body.merged_at != 0
-      run: echo $GITHUB_SHA $GITHUB_REF
+    - name: Perform backport
+      if: github.event.pull_request.merged && contains(github.event.pull_request.labels, 'backport')
     - uses: actions/github-script@0.3.0
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
