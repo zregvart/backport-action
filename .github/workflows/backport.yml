@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Perform backport
-      if: github.event.pull_request.merged && contains(github.event.pull_request.labels, 'backport')
-      uses: actions/github-script@0.3.0
-      with:
-        github-token: ${{secrets.GITHUB_TOKEN}}
-        script: |
-          console.log(context)
+      - name: Perform backport
+        if: github.event.pull_request.merged && contains(github.event.pull_request.labels, 'backport')
+        uses: actions/github-script@0.3.0
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            console.log(context)
