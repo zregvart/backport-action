@@ -19,9 +19,9 @@ jobs:
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
-          const backports = context.payload.pull_request.labels.filter(l => /backport .+/.test(l.name)).map(l => l.name.substring(9));
+          const branches = context.payload.pull_request.labels.filter(l => /backport .+/.test(l.name)).map(l => l.name.substring(9));
           // check if the merged pull request has a `backport ...` label on it
-          if (backports && backports.length !== 0) {
+          if (branches && branches.length !== 0) {
             console.log(`##[set-output name=branches;]${branches.join(',')}`)
           }
     - name: perform
