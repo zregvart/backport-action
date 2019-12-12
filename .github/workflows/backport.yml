@@ -26,6 +26,5 @@ jobs:
             core.setOutput('branches', branches.join(','))
           }
     - name: perform
-      #if: steps.check.outputs.branches
       run: |
-        env
+        echo ${{steps.check.outputs.branches}}
