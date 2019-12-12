@@ -13,20 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Test if PR needs to be backported
-      id: check
+    - name: Backport closed pull request
+      id: backport
       if: github.event.pull_request.merged
-      uses: actions/github-script@0.3.0
-      with:
-        github-token: ${{secrets.GITHUB_TOKEN}}
-        script: |
-          const core = require('@actions/core')
-          const branches = context.payload.pull_request.labels.filter(l => /backport .+/.test(l.name)).map(l => l.name.substring(9));
-          // check if the merged pull request has a `backport ...` label on it
-          if (branches && branches.length !== 0) {
-            core.setOutput('branches', branches.join(','))
-          }
-    - name: Checkout
-      id: checkout
-      if: steps.check.outputs.branches != 0
-      uses: actions/checkout@v2-beta
+      uses: ./github/actions/backport
