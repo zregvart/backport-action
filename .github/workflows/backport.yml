@@ -1,11 +1,11 @@
 name: Backport
 
 on:
-  pull_request:
-    branches:
-      - master
+  label:
     types:
-      - closed
+      - created
+      - deleted
+      - edited
 
 jobs:
   build:
@@ -14,6 +14,8 @@ jobs:
 
     steps:
     - name: backport
-      if: github.event.pull_request.merged && startsWith(github.event.pull_request.labels.*.name, 'backport ')
-      run: |
-        echo hi!
+      uses: actions/github-script@0.3.0
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          console.log(context);
