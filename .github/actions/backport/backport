@@ -5,7 +5,7 @@ set -o pipefail
 backport() {
   local branch=$1
   local number=$(jq --raw-output .number "$GITHUB_EVENT_PATH")
-  local repository=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH")
+  local repository=$(tmp=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH"); echo ${tmp/:\/\//:\/\/${GITHUB_ACTOR}:${GITHUB_TOKEN}@})
   local backport_branch="backport/${number}-to-${branch}"
   local merge_sha=$(jq --raw-output .pull_request.merge_commit_sha "$GITHUB_EVENT_PATH")
 
