@@ -1,11 +1,11 @@
 name: Backport
 
 on:
-  label:
+  pull_request:
+    branches:
+      - master
     types:
-      - created
-      - deleted
-      - edited
+      - closed
 
 jobs:
   build:
@@ -13,9 +13,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: backport
+    - name: check
+      if: github.event.pull_request.merged
       uses: actions/github-script@0.3.0
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
-          console.log(context);
+          const core = require('@actions/core')
+          const branches = context.payload.pull_request.labels.filter(l => /backport .+/.test(l.name)).map(l => l.name.substring(9));
+          // check if the merged pull request has a `backport ...` label on it
+          if (branches && branches.length !== 0) {
+            core.setOutput('branches', branches.join(','))
+          }
+    - name: perform
+      env:
+        BRANCHES: ${{steps.check.outputs.branches}}
+      run: |
+        echo $BRANCHES
