@@ -17,7 +17,6 @@ jobs:
       if: github.event.pull_request.merged
       uses: actions/github-script@0.3.0
       with:
-        github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
           const backports = context.payload.pull_request.labels.filter(l => /backport .+/.test(l.name)).map(l => l.name.substring(9));
           // check if the merged pull request has a `backport ...` label on it
@@ -27,7 +26,5 @@ jobs:
           console.log(`##[set-output name=branches;]${branches.join(',')}`)
     - name: perform
       if: steps.check.outputs.branches
-      with:
-        branches: ${{steps.check.outputs.branches}}
-        run: |
-          echo $branches $GITHUB_SHA $GITHUB_REF
+      run: |
+        env
