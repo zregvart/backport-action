@@ -14,3 +14,6 @@ jobs:
     if: github.event.pull_request.merged
     steps:
     - uses: zregvart/backport-action@master
+      with:
+        git_user_email: 'zoran@regvart.com'
+        git_user_name: 'Zoran Regvart'
