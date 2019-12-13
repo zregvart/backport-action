@@ -1,0 +1,18 @@
+name: 'Backport pull request'
+description: 'Backport pull request based on backport label'
+branding:
+  icon: corner-left-down
+  color: gray
+inputs:
+  git_user_email:
+    description: 'email address used for configuring git (user.email)'
+    required: true
+  git_user_name:
+    description: 'Name used for configuring git (user.name)'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{inputs.git_user_email}}
+    - ${{inputs.git_user_name}}

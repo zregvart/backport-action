@@ -12,9 +12,6 @@ RUN apk add --no-cache \
     jq \
     git
 
-RUN git config --global user.email "admin@syndesis.io"; \
-    git config --global user.name "Backport Action"
-
 COPY backport /usr/bin/backport
 
 ENTRYPOINT ["backport"]

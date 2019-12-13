@@ -3,15 +3,18 @@ set -e
 set -o pipefail
 
 backport() {
-  local branch=$1
-  local number=$(jq --raw-output .number "$GITHUB_EVENT_PATH")
+  local number=$1
+  local branch=$2
+  local git_user_email=$3
+  local git_user_name=$4
+
   local repository=$(tmp=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH"); echo ${tmp/:\/\//:\/\/${GITHUB_ACTOR}:${GITHUB_TOKEN}@})
   local backport_branch="backport/${number}-to-${branch}"
   local merge_sha=$(jq --raw-output .pull_request.merge_commit_sha "$GITHUB_EVENT_PATH")
 
   local workdir=$(mktemp -d)
-  git config --global user.email "admin@syndesis.io"
-  git config --global user.name "Backport Action"
+  git config --global user.email "${git_user_email}"
+  git config --global user.name "${git_user_name}"
   git clone --no-tags -b ${branch} ${repository} "${workdir}"
   (cd "${workdir}";
   git checkout -b ${backport_branch};
@@ -40,6 +43,10 @@ backport() {
 }
 
 main() {
+  local git_user_email=$1
+  local git_user_name=$2
+
+  local number=$(jq --raw-output .number "$GITHUB_EVENT_PATH")
   local merged=$(jq --raw-output .pull_request.merged "$GITHUB_EVENT_PATH")
   local labels=$(jq --raw-output .pull_request.labels[].name "$GITHUB_EVENT_PATH")
 
@@ -51,7 +58,7 @@ main() {
   for label in ${labels}; do
     if [[ "${label}" == 'backport '* ]]; then
       local branch=${label#* }
-      backport ${branch}
+      backport ${number} ${branch} "${git_user_email}" "${git_user_name}"
     fi
   done
 
