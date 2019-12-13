@@ -8,7 +8,9 @@ backport() {
   local git_user_email=$3
   local git_user_name=$4
 
-  local repository=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH")
+  echo "::debug::Backporting pull request #${number} to branch ${branch}"
+
+  local repository=$(tmp=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH"); echo ${tmp/:\/\//:\/\/${GITHUB_USER}:${GITHUB_TOKEN}@})
   local backport_branch="backport/${number}-to-${branch}"
   local merge_sha=$(jq --raw-output .pull_request.merge_commit_sha "$GITHUB_EVENT_PATH")
 
@@ -18,9 +20,6 @@ backport() {
 
   git clone --no-tags -b ${branch} ${repository} "${workdir}"
   (cd "${workdir}";
-  # so we don't log the access token by accident
-  git config 'http.https://github.com/.extraheader' "Authorization: Bearer ***"
-  sed -i -e "s/\*\*\*/${GITHUB_TOKEN}/" .git/config
   git checkout -b ${backport_branch};
   git cherry-pick --mainline 1 ${merge_sha};
   git push --set-upstream origin ${backport_branch};
