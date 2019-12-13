@@ -10,9 +10,10 @@ backport() {
   local token=$5
 
   echo "::debug::Backporting pull request #${number} to branch ${branch}"
+  echo "::debug::is it here? ${GITHUB_TOKEN}"
+  echo "::debug::token should be ${token}"
 
-  local repository=$(tmp=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH"); echo ${tmp/:\/\//:\/\/$(jq --raw-output .repository.owner.login "$GITHUB_EVENT_PATH"):${token}@})
-  echo "::debug::repository: ${repository}"
+  local repository=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH")
   local backport_branch="backport/${number}-to-${branch}"
   local merge_sha=$(jq --raw-output .pull_request.merge_commit_sha "$GITHUB_EVENT_PATH")
 
@@ -23,7 +24,7 @@ backport() {
   (cd "${GITHUB_WORKSPACE}";
   git checkout -b ${backport_branch};
   git cherry-pick --mainline 1 ${merge_sha};
-  git push --set-upstream origin ${backport_branch})
+  git push -c "http.extraheader=Authorization: basic $(echo x-access-token:${token}|base64)" --set-upstream origin ${backport_branch})
 
   local title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
   local pull_request_title="[Backport ${branch}] ${title}"
