@@ -10,7 +10,7 @@ backport() {
 
   echo "::debug::Backporting pull request #${number} to branch ${branch}"
 
-  local repository=$(tmp=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH"); echo ${tmp/:\/\//:\/\/${GITHUB_USER}:${GITHUB_TOKEN}@})
+  local repository=$(tmp=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH"); echo ${tmp/:\/\//:\/\/$(jq --raw-output .repository.owner.login "$GITHUB_EVENT_PATH"):${GITHUB_TOKEN}@})
   local backport_branch="backport/${number}-to-${branch}"
   local merge_sha=$(jq --raw-output .pull_request.merge_commit_sha "$GITHUB_EVENT_PATH")
 
