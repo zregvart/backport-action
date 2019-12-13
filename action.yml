@@ -16,3 +16,4 @@ runs:
   args:
     - ${{inputs.git_user_email}}
     - ${{inputs.git_user_name}}
+    - ${{github.token}}

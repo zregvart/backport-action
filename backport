@@ -7,10 +7,12 @@ backport() {
   local branch=$2
   local git_user_email=$3
   local git_user_name=$4
+  local token=$5
 
   echo "::debug::Backporting pull request #${number} to branch ${branch}"
 
-  local repository=$(tmp=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH"); echo ${tmp/:\/\//:\/\/$(jq --raw-output .repository.owner.login "$GITHUB_EVENT_PATH"):${GITHUB_TOKEN}@})
+  local repository=$(tmp=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH"); echo ${tmp/:\/\//:\/\/$(jq --raw-output .repository.owner.login "$GITHUB_EVENT_PATH"):${token}@})
+  echo "::debug::repository: ${repository}"
   local backport_branch="backport/${number}-to-${branch}"
   local merge_sha=$(jq --raw-output .pull_request.merge_commit_sha "$GITHUB_EVENT_PATH")
 
@@ -46,6 +48,7 @@ backport() {
 main() {
   local git_user_email=$1
   local git_user_name=$2
+  local token=$3
 
   local number=$(jq --raw-output .number "$GITHUB_EVENT_PATH")
   local merged=$(jq --raw-output .pull_request.merged "$GITHUB_EVENT_PATH")
@@ -59,7 +62,7 @@ main() {
   for label in ${labels}; do
     if [[ "${label}" == 'backport '* ]]; then
       local branch=${label#* }
-      backport ${number} ${branch} "${git_user_email}" "${git_user_name}"
+      backport ${number} ${branch} "${git_user_email}" "${git_user_name}" "${token}"
     fi
   done
 
