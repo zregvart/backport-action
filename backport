@@ -8,7 +8,7 @@ backport() {
   local git_user_email=$3
   local git_user_name=$4
 
-  local repository=$(tmp=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH"); echo ${tmp/:\/\//:\/\/${GITHUB_ACTOR}:${GITHUB_TOKEN}@})
+  local repository=$(tmp=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH"); echo ${tmp/:\/\//:\/\/x-access-token:${GITHUB_TOKEN}@})
   local backport_branch="backport/${number}-to-${branch}"
   local merge_sha=$(jq --raw-output .pull_request.merge_commit_sha "$GITHUB_EVENT_PATH")
 
