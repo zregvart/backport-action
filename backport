@@ -10,8 +10,6 @@ backport() {
   local token=$5
 
   echo "::debug::Backporting pull request #${number} to branch ${branch}"
-  echo "::debug::is it here? ${GITHUB_TOKEN}"
-  echo "::debug::token should be ${token}"
 
   local repository=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH")
   local backport_branch="backport/${number}-to-${branch}"
@@ -24,7 +22,7 @@ backport() {
   (cd "${GITHUB_WORKSPACE}";
   git checkout -b ${backport_branch};
   git cherry-pick --mainline 1 ${merge_sha};
-  git push -c "http.extraheader=Authorization: basic $(echo x-access-token:${token}|base64)" --set-upstream origin ${backport_branch})
+  git -c "http.extraheader=Authorization: basic $(echo x-access-token:${token}|base64)" push --set-upstream origin ${backport_branch})
 
   local title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
   local pull_request_title="[Backport ${branch}] ${title}"
@@ -40,7 +38,7 @@ backport() {
 
   curl -XPOST -fsSL \
     -H 'Accept: application/vnd.github.v3+json' \
-    -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+    -H "Authorization: Bearer ${token}" \
     -H "Content-Type: application/json" \
     -d "${pull_request}" \
     ${pulls}
