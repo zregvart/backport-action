@@ -17,11 +17,10 @@ backport() {
   local backport_branch="backport/${number}-to-${branch}"
   local merge_sha=$(jq --raw-output .pull_request.merge_commit_sha "$GITHUB_EVENT_PATH")
 
-  git config --global user.email "$(git --no-pager log --format=format:'%ae' -n 1)"
-  git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
-
   git clone --no-tags -b ${branch} ${repository} "${GITHUB_WORKSPACE}"
   (cd "${GITHUB_WORKSPACE}";
+  git config --global user.email "$(git --no-pager log --format=format:'%ae' -n 1)"
+  git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
   git checkout -b ${backport_branch};
   git cherry-pick --mainline 1 ${merge_sha};
   auth=$(echo ${GITHUB_ACTOR}:${token}|base64);
