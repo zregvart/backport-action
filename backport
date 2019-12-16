@@ -24,8 +24,7 @@ backport() {
   git checkout -b ${backport_branch};
   git cherry-pick --mainline 1 ${merge_sha};
   auth=$(echo ${GITHUB_ACTOR}:${token}|base64);
-  echo "::debug::auth=$(echo ${auth}|base64)"
-  GIT_CURL_VERBOSE=2 git -c "http.extraheader=Authorization: Basic ${auth/$'\n'/}" push --set-upstream origin ${backport_branch})
+  GIT_CURL_VERBOSE=2 git -c "http.extraheader=AUTHORIZATION: basic ${auth/$'\n'/}" push --set-upstream origin ${backport_branch})
 
   local title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
   local pull_request_title="[Backport ${branch}] ${title}"

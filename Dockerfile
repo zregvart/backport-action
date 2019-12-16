@@ -5,7 +5,7 @@ LABEL "com.github.actions.description"="Backport pull request based on backport 
 LABEL "com.github.actions.icon"="corner-left-down"
 LABEL "com.github.actions.color"="gray"
 
-RUN apk add --no-cache \
+RUN apk add --update --no-cache \
     bash \
     ca-certificates \
     curl \
