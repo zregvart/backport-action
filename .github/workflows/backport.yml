@@ -13,11 +13,6 @@ jobs:
     name: Backport closed pull request
     if: github.event.pull_request.merged
     steps:
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/checkout@v2
     - uses: zregvart/backport-action@master
-      with:
-        git_user_email: 'zoran@regvart.com'
-        git_user_name: 'Zoran Regvart'
+    - uses: mxschmitt/action-tmate@v1
