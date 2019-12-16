@@ -57,6 +57,7 @@ backport() {
   local pulls=$(tmp=$(jq --raw-output .repository.pulls_url "$GITHUB_EVENT_PATH"); echo "${tmp%{*}")
 
   curl -XPOST -fsSL \
+    --output /dev/null \
     -H 'Accept: application/vnd.github.v3+json' \
     -H "Authorization: Bearer ${INPUT_TOKEN}" \
     -H "Content-Type: application/json" \
@@ -64,10 +65,29 @@ backport() {
     ${pulls}
 }
 
+delete() {
+  local ref=$1
+  local refs=$(tmp=$(jq --raw-output .pull_request.head.repo.git_refs_url "$GITHUB_EVENT_PATH"); echo "${tmp%{*}")
+
+  curl -XDELETE -fsSL \
+    --output /dev/null \
+    -H 'Accept: application/vnd.github.v3+json' \
+    -H "Authorization: Bearer ${INPUT_TOKEN}" \
+    "$refs/$ref"
+}
+
 main() {
   local number=$(jq --raw-output .number "$GITHUB_EVENT_PATH")
+  local state=$(jq --raw-output .pull_request.state "$GITHUB_EVENT_PATH")
+  local login=$(jq --raw-output .pull_request.user.login "$GITHUB_EVENT_PATH")
+  local title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
   local merged=$(jq --raw-output .pull_request.merged "$GITHUB_EVENT_PATH")
   local labels=$(jq --raw-output .pull_request.labels[].name "$GITHUB_EVENT_PATH")
+
+  if [[ "$state" == "closed" && "$login" == "github-actions[bot]" && "$title" == '[Backport '* ]]; then
+    delete "head/$(jq --raw-output .pull_request.head.ref "$GITHUB_EVENT_PATH")"
+    exit 0
+  fi
 
   if [[ "$merged" != "true" ]]; then
     exit 0
