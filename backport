@@ -16,6 +16,7 @@ backport() {
   local backport_branch="backport/${number}-to-${branch}"
   local merge_sha=$(jq --raw-output .pull_request.merge_commit_sha "$GITHUB_EVENT_PATH")
 
+  GITHUB_WORKSPACE=${GITHUB_WORKSPACE}/2
   git clone --no-tags -b ${branch} ${repository} "${GITHUB_WORKSPACE}"
   (
   cd "${GITHUB_WORKSPACE}";
