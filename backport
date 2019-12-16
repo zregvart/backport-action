@@ -10,7 +10,6 @@ backport() {
   local git_user_name=$4
 
   echo "::debug::Backporting pull request #${number} to branch ${branch}"
-  echo "::debug::environment\n$(env)"
 
   local repository=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH")
   local backport_branch="backport/${number}-to-${branch}"
@@ -24,8 +23,8 @@ backport() {
   git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
   git checkout -b ${backport_branch};
   git cherry-pick --mainline 1 ${merge_sha};
-  auth=$(echo ${GITHUB_ACTOR}:${GITHUB_TOKEN}|base64);
-  #GIT_CURL_VERBOSE=2 git -c "http.extraheader=AUTHORIZATION: basic ${auth/$'\n'/}" push --set-upstream origin ${backport_branch}
+  auth=$(tmp=$(echo -n x-access-token:${INPUT_TOKEN}|base64); echo -n ${tmp/$'\n'/});
+  GIT_CURL_VERBOSE=2 git -c "http.extraheader=AUTHORIZATION: basic ${tmp}" push --set-upstream origin ${backport_branch}
   )
 
   local title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
@@ -39,15 +38,13 @@ backport() {
   }"
 
   local pulls=$(tmp=$(jq --raw-output .repository.pulls_url "$GITHUB_EVENT_PATH"); echo "${tmp%{*}")
-  echo $INPUT_TOKEN > input_token
-  echo $GITHUB_TOKEN > github_token
 
-  #curl -XPOST -fsSL \
-  #  -H 'Accept: application/vnd.github.v3+json' \
-  #  -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-  #  -H "Content-Type: application/json" \
-  #  -d "${pull_request}" \
-  #  ${pulls}
+  curl -XPOST -fsSL \
+    -H 'Accept: application/vnd.github.v3+json' \
+    -H "Authorization: Bearer ${INPUT_TOKEN}" \
+    -H "Content-Type: application/json" \
+    -d "${pull_request}" \
+    ${pulls}
 }
 
 main() {
