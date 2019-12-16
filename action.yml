@@ -6,5 +6,3 @@ branding:
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  env:
-    GITHUB_TOKEN: ${{ github.token }}
