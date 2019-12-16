@@ -1,13 +1,29 @@
 #!/bin/bash
-set -x
 set -e
 set -o pipefail
+
+fail() {
+  local message=$1
+
+  local comment="{\
+    \"body\": \"${message}\"
+  }"
+
+  local comments=$(jq --raw-output .pull_request._links.comments.href "$GITHUB_EVENT_PATH")
+
+  curl -XPOST -fsSL \
+    -H 'Accept: application/vnd.github.v3+json' \
+    -H "Authorization: Bearer ${INPUT_TOKEN}" \
+    -H "Content-Type: application/json" \
+    -d "${comment}" \
+    ${comments}
+
+  exit 1
+}
 
 backport() {
   local number=$1
   local branch=$2
-  local git_user_email=$3
-  local git_user_name=$4
 
   echo "::debug::Backporting pull request #${number} to branch ${branch}"
 
@@ -18,12 +34,14 @@ backport() {
 
   git clone --no-tags -b ${branch} ${repository} "${GITHUB_WORKSPACE}"
   (
-  cd "${GITHUB_WORKSPACE}";
-  git config --global user.email "$(git --no-pager log --format=format:'%ae' -n 1)"
-  git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
-  git checkout -b ${backport_branch};
-  git cherry-pick --mainline 1 ${merge_sha};
-  GIT_CURL_VERBOSE=2 git -c "http.extraheader=Authorization: basic ${auth}" push --set-upstream origin ${backport_branch}
+    cd "${GITHUB_WORKSPACE}";
+    git config --global user.email "$(git --no-pager log --format=format:'%ae' -n 1)"
+    git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
+    set +e
+    git checkout -b ${backport_branch} || fail "Unable to checkout branch named ${branch}, you might need to create it or use a different label.";
+    git cherry-pick --mainline 1 ${merge_sha} || fail "Unable to cherry-pick commit ${merge_sha} on top of branch ${branch}. This pull request needs to be backported manually.";
+    git -c "http.extraheader=Authorization: basic ${auth}" push --set-upstream origin ${backport_branch} || fail "Unable to push the backported branch, did you try to backport the same PR twice without deleting the ${backport_branch} branch?";
+    set -e
   )
 
   local title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
@@ -57,12 +75,12 @@ main() {
 
   IFS=$'\n'
   for label in ${labels}; do
+    # label needs to be `backport <name of the branch>`
     if [[ "${label}" == 'backport '* ]]; then
       local branch=${label#* }
-      backport ${number} ${branch} "${git_user_email}" "${git_user_name}" "${token}"
+      backport ${number} ${branch}
     fi
   done
-
 }
 
 main "$@"
