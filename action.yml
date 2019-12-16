@@ -3,20 +3,8 @@ description: 'Backport pull request based on backport label'
 branding:
   icon: corner-left-down
   color: gray-dark
-inputs:
-  git_user_email:
-    description: 'email address used for configuring git (user.email)'
-    required: true
-  git_user_name:
-    description: 'Name used for configuring git (user.name)'
-    required: true
-  token:
-    description: 'GitHub token for pushing the backport branch to the origin repository'
-    default: ${{ github.token }}
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  args:
-    - ${{inputs.git_user_email}}
-    - ${{inputs.git_user_name}}
-    - ${{inputs.token}}
+  env:
+    - GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
