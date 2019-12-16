@@ -6,11 +6,11 @@ on:
       - master
     types:
       - closed
+      - labeled
 
 jobs:
   build:
     runs-on: ubuntu-latest
     name: Backport closed pull request
-    if: github.event.pull_request.merged
     steps:
     - uses: zregvart/backport-action@master
