@@ -1,7 +1,11 @@
 name: Backport
 
 on:
-  push:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
 
 jobs:
   build:
