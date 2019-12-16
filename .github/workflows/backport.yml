@@ -15,4 +15,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: zregvart/backport-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - uses: mxschmitt/action-tmate@v1
