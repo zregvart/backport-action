@@ -14,4 +14,6 @@ RUN apk add --update --no-cache \
 
 COPY backport /usr/bin/backport
 
+USER 1001:115
+
 ENTRYPOINT ["backport"]
