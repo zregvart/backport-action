@@ -15,6 +15,8 @@ jobs:
     steps:
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - uses: zregvart/backport-action@master
       with:
         git_user_email: 'zoran@regvart.com'
