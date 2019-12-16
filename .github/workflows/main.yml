@@ -9,7 +9,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Run a one-line script
+    - uses: mxschmitt/action-tmate@v1
+    - name: Add file
       run: |
         echo blah > file
         git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
