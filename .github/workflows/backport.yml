@@ -13,10 +13,4 @@ jobs:
     name: Backport closed pull request
     if: github.event.pull_request.merged
     steps:
-    - uses: actions/checkout@v2
-      with:
-        ref: master
     - uses: zregvart/backport-action@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - uses: mxschmitt/action-tmate@v1

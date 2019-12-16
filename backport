@@ -14,8 +14,8 @@ backport() {
   local repository=$(jq --raw-output .repository.clone_url "$GITHUB_EVENT_PATH")
   local backport_branch="backport/${number}-to-${branch}"
   local merge_sha=$(jq --raw-output .pull_request.merge_commit_sha "$GITHUB_EVENT_PATH")
+  local auth=$(tmp=$(echo -n x-access-token:${INPUT_TOKEN}|base64); echo -n ${tmp/$'\n'/});
 
-  GITHUB_WORKSPACE=${GITHUB_WORKSPACE}/2
   git clone --no-tags -b ${branch} ${repository} "${GITHUB_WORKSPACE}"
   (
   cd "${GITHUB_WORKSPACE}";
@@ -23,8 +23,7 @@ backport() {
   git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
   git checkout -b ${backport_branch};
   git cherry-pick --mainline 1 ${merge_sha};
-  auth=$(tmp=$(echo -n x-access-token:${INPUT_TOKEN}|base64); echo -n ${tmp/$'\n'/});
-  GIT_CURL_VERBOSE=2 git -c "http.extraheader=AUTHORIZATION: basic ${auth}" push --set-upstream origin ${backport_branch}
+  GIT_CURL_VERBOSE=2 git -c "http.extraheader=Authorization: basic ${auth}" push --set-upstream origin ${backport_branch}
   )
 
   local title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
