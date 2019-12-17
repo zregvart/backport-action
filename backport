@@ -12,6 +12,7 @@ fail() {
   local comments=$(jq --raw-output .pull_request._links.comments.href "$GITHUB_EVENT_PATH")
 
   curl -XPOST -fsSL \
+    --output /dev/null \
     -H 'Accept: application/vnd.github.v3+json' \
     -H "Authorization: Bearer ${INPUT_TOKEN}" \
     -H "Content-Type: application/json" \
@@ -38,8 +39,8 @@ backport() {
     git config --global user.email "$(git --no-pager log --format=format:'%ae' -n 1)"
     git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
     set +e
-    git checkout -b ${backport_branch} || fail "Unable to checkout branch named ${branch}, you might need to create it or use a different label.";
-    git cherry-pick --mainline 1 ${merge_sha} || fail "Unable to cherry-pick commit ${merge_sha} on top of branch ${branch}. This pull request needs to be backported manually.";
+    git checkout -b ${backport_branch} || fail "Unable to checkout branch named \'${branch}\', you might need to create it or use a different label.";
+    git cherry-pick --mainline 1 ${merge_sha} || fail "Unable to cherry-pick commit ${merge_sha} on top of branch \`${branch}\`.\n\nThis pull request needs to be backported manually.";
     git -c "http.extraheader=Authorization: basic ${auth}" push --set-upstream origin ${backport_branch} || fail "Unable to push the backported branch, did you try to backport the same PR twice without deleting the ${backport_branch} branch?";
     set -e
   )
